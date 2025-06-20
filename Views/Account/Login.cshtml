@@ -1,0 +1,145 @@
+﻿@model CredWise_Trail.Models.ViewModels.LoginViewModel
+
+@{
+    Layout = "~/Views/Shared/RegisterNav.cshtml";
+    ViewData["Title"] = "Login";
+}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .form-container-wrapper {
+        max-width: 500px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .form-card {
+        border: 1px solid #e9ecef;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .04);
+        background-color: #ffffff;
+    }
+
+        .form-card .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #343a40;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 1.5rem 1rem;
+        }
+
+            .form-card .card-header i {
+                color: #0A2463;
+                margin-right: 0.5rem;
+            }
+
+        .form-card .card-body {
+            padding: 2rem;
+        }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-select ~ label {
+        color: #0A2463;
+    }
+
+    .btn-primary {
+        background-color: #3E92CC;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        color: white; 
+    }
+
+        .btn-primary i {
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0A2463;
+            border-color: white;
+        }
+
+    .form-footer-links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+        .form-footer-links a {
+            color: #3E92CC;
+            text-decoration: none;
+        }
+
+            .form-footer-links a:hover {
+                text-decoration: underline;
+                color: #0A2463;
+            }
+</style>
+
+<div class="form-container-wrapper shadow">
+    <div class="card form-card">
+        <div class="card-header">
+            <i class="fas fa-sign-in-alt"></i>Login to Your Account
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="Login" asp-controller="Account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com" />
+                    <label asp-for="Email"><i class="fas fa-envelope me-2"></i>Email address</label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                    <label asp-for="Password"><i class="fas fa-lock me-2"></i>Password</label>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+                    <a href="#" class="form-text">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+            </form>
+
+            <div class="form-footer-links">
+                <span>Don't have an account? <a href="@Url.Action("Register","Account")">Register here</a></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
