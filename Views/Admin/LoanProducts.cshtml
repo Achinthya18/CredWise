@@ -1,14 +1,14 @@
-﻿@model IEnumerable<CredWise_Trail.Models.ViewModels.LoanProductViewModel>
+﻿@model IEnumerable<CredWise.Models.ViewModels.LoanProductViewModel>
 
 @{
     Layout = "~/Views/Shared/AdminUtility.cshtml";
-    ViewData["Title"] = "Loan Products"; // Set page title
+    ViewData["Title"] = "Loan Products"; 
 }
 
 <style>
     body {
         font-family: 'Inter', sans-serif;
-        background-color: #f0f2f5; /* Light gray background */
+        background-color: #f0f2f5; 
     }
 
     :root {
@@ -17,10 +17,10 @@
     }
 
     .page-header h2, .page-header .h3 {
-        color: var(--primary-brand-color); /* Applied */
+        color: var(--primary-brand-color);
         font-weight: 700;
     }
-    /* Card Styles */
+
     .card {
         border: 1px solid #e9ecef;
         border-radius: 0.75rem;
@@ -38,7 +38,6 @@
         padding: 1.5rem;
     }
 
-    /* Table styles */
     .table thead th {
         background-color: #f8f9fa;
         color: #495057;
@@ -66,11 +65,10 @@
         background-color: rgba(0,0,0,.025);
     }
 
-    .table .btn-sm i { /* Ensure icons in small buttons are aligned */
+    .table .btn-sm i { 
         vertical-align: middle;
     }
 
-    /* Modal Styling */
     .modal-header {
         background-color: #f8f9fa;
         border-bottom: 1px solid #dee2e6;
@@ -117,12 +115,11 @@
             border-color: white;
         }
 
-    /* Toast Container (for pop-up messages) */
     #toastContainer {
         position: fixed;
         top: 20px;
         right: 20px;
-        z-index: 1050; /* Above modals */
+        z-index: 1050;
     }
 
     .toast {
@@ -179,7 +176,6 @@
     </div>
 </div>
 
-@* Edit Product Modal *@
 <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -230,7 +226,6 @@
     </div>
 </div>
 
-@* Delete Confirmation Modal *@
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -248,7 +243,6 @@
     </div>
 </div>
 
-@* Toast Container for messages *@
 <div class="toast-container" id="toastContainer">
 </div>
 

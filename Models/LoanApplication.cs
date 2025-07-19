@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CredWise_Trail.Models
+namespace CredWise.Models
 {
     [Table("LOAN_APPLICATIONS")]
     public class LoanApplication
@@ -63,7 +63,6 @@ namespace CredWise_Trail.Models
         [ForeignKey("LoanProductId")]
         public LoanProduct LoanProduct { get; set; } 
 
-        //ICollection is used here to represent one-to-many relationship.
         public ICollection<LoanPayment> Payments { get; set; }
         public ICollection<Repayment> Repayments { get; set; }
     }

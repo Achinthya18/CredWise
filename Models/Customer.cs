@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CredWise_Trail.Models
+namespace CredWise.Models
 {
     public class Customer
     {
@@ -17,7 +17,7 @@ namespace CredWise_Trail.Models
         public string Email { get; set; }
 
         [Required]
-        [StringLength(255)] // Sufficient length for hashed passwords
+        [StringLength(255)]
         public string PasswordHash { get; set; }
 
         [StringLength(15)]
@@ -25,12 +25,11 @@ namespace CredWise_Trail.Models
 
         public string Address { get; set; }
 
-        [StringLength(20)] // Choose an appropriate length for your account numbers
+        [StringLength(20)] 
         public string AccountNumber { get; set; }
 
-        // New property for Created Date
-        [Required] // This field should always be present
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow; // Set default to current UTC time
+        [Required] 
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         public ICollection<LoanApplication> LoanApplications { get; set; }
         public ICollection<KycApproval> kycApprovals { get; set; }

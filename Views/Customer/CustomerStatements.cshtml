@@ -1,9 +1,8 @@
-﻿@model CredWise_Trail.Models.ViewModels.CustomerStatementViewModel
+﻿@model CredWise.Models.ViewModels.CustomerStatementViewModel
 
 @{
     ViewData["Title"] = "Customer Report & Statement";
-
-    // Helper function to convert a status string (e.g., "APPROVED") into a CSS class for styling badges.
+    Layout = "~/Views/Shared/_Layout.cshtml";
     Func<string, string> GetLoanApprovalBadgeClass = (status) =>
     {
         if (string.IsNullOrEmpty(status)) return "badge-secondary";
@@ -42,8 +41,6 @@
             _ => "badge-secondary"
         };
     };
-
-    // Determine the identifier of the first loan to show by default on page load.
     var firstLoanIdentifierToShow = Model?.LoanStatements?.FirstOrDefault()?.UniqueLoanIdentifier;
 }
 
@@ -214,8 +211,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-
-        /* Print-only styles: This block is ignored by the browser but used when printing the page. */
         @@media print {
             .no-print {
                 display: none !important;
@@ -338,7 +333,7 @@
                         <select class="form-control" id="loanAccountSelect">
                             @foreach (var loanOption in Model.LoanAccountsForSelection)
                             {
-                                // The 'selected' attribute is dynamically added to the first loan, making it the default view.
+                                
                                 <option value="@loanOption.LoanIdValue" selected="@(loanOption.LoanIdValue == firstLoanIdentifierToShow ? "selected" : null)">
                                     @loanOption.LoanDisplayText
                                 </option>
@@ -348,7 +343,7 @@
 
                     @foreach (var statement in Model.LoanStatements)
                     {
-                        // This div's ID is unique. The 'show' class is added to the first loan so it's visible by default.
+                        
                         <div id="statementDetails@(statement.UniqueLoanIdentifier)" class="statement-content @(statement.UniqueLoanIdentifier == firstLoanIdentifierToShow ? "show" : "")">
                             <div class="card card-custom">
                                 <div class="card-header bg-secondary-custom">
@@ -437,7 +432,6 @@
                 window.print();
             });
 
-            // When the dropdown selection changes, hide all statements and show only the selected one.
             $('#loanAccountSelect').on('change', function () {
                 var selectedLoanId = $(this).val();
 

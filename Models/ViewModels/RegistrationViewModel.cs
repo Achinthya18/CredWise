@@ -1,9 +1,8 @@
-﻿// CredWise_Trail.Models.ViewModels/RegistrationViewModel.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CredWise_Trail.Models.ViewModels
+namespace CredWise.Models.ViewModels
 {
-    public class RegistrationViewModel // Assuming this is the name you used
+    public class RegistrationViewModel
     {
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
@@ -21,7 +20,7 @@ namespace CredWise_Trail.Models.ViewModels
         public string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Address is required.")]
-        public string Address { get; set; } // Make sure this property exists in your ViewModel
+        public string Address { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace CredWise_Trail.ViewModels
+namespace CredWise.ViewModels
 {
     public class MakePaymentViewModel
     {
@@ -25,18 +25,12 @@ namespace CredWise_Trail.ViewModels
         [Display(Name = "Minimum Payment")]
         public decimal MinPayment { get; set; } // Typically EMI
 
-        public bool IsPaymentDue { get; set; } // True if DueDate is today or past
-
-        // --- NEW PROPERTIES FOR OVERDUE DISPLAY ---
+        public bool IsPaymentDue { get; set; }
         public int OverdueMonths { get; set; }
         public decimal CurrentOverdueAmount { get; set; }
-        public bool IsOverdue { get; set; } // True if OverdueMonths > 0
-
-        // --- ADDED: Loan Status ---
-        public string LoanStatus { get; set; } // To pass the current loan status to the view
+        public bool IsOverdue { get; set; }
+        public string LoanStatus { get; set; }
     }
-
-    // Data Transfer Object for incoming payment request from frontend (AJAX)
     public class PaymentRequestDto
     {
         [Required]
@@ -47,6 +41,5 @@ namespace CredWise_Trail.ViewModels
         [Required]
         [StringLength(50)]
         public string PaymentMethod { get; set; }
-        // Add other properties for new payment methods if needed (e.g., CardNumber, ExpiryDate, CVV)
     }
 }

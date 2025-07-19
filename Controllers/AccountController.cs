@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
-using CredWise_Trail.Models;
-using CredWise_Trail.Models.ViewModels;
+using CredWise.Models;
+using CredWise.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;  
 using Microsoft.Extensions.Logging;
-using CredWise_Trail.Services;
-using CredWise_Trail.Filters; 
+using CredWise.Services;
+using CredWise.Filters; 
 
-namespace CredWise_Trail.Controllers
+namespace CredWise.Controllers
 {
     public class AccountController : Controller
     {

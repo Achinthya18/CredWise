@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CredWise_Trail.Migrations
+namespace CredWise.Migrations
 {
     /// <inheritdoc />
     public partial class LoanPaymentChanges : Migration

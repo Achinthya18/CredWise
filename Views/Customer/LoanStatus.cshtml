@@ -1,9 +1,7 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model IEnumerable<CredWise_Trail.Models.LoanApplication>
+﻿@model IEnumerable<CredWise.Models.LoanApplication>
 @{
-    ViewData["Title"] = "Loan Status"; // Set page title
+    ViewData["Title"] = "Loan Status"; 
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -20,7 +18,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Consistent background */
+            background-color: #f0f2f5; 
         }
 
         .card-table-container {
@@ -29,7 +27,7 @@
             box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .04);
             background-color: #ffffff;
             margin: auto;
-            max-width: 900px; /* Increased max-width for better display */
+            max-width: 900px; 
             width: 100%;
         }
 
@@ -73,13 +71,11 @@
             color: #055160;
         }
 
-        /* Custom soft badges for loan status */
-        .badge.bg-secondary-soft { /* For 'Closed' */
+        .badge.bg-secondary-soft { 
             background-color: #e2e3e5;
             color: #495057;
         }
 
-        /* Added for no applications message */
         .no-applications-message {
             text-align: center;
             padding: 2rem;
@@ -150,19 +146,19 @@
                                     {
                                         case "Active":
                                         case "Disbursed":
-                                            loanStatusBadgeClass = "bg-success-soft"; // Green for Active/Disbursed
+                                            loanStatusBadgeClass = "bg-success-soft"; 
                                             break;
                                         case "Overdue":
-                                            loanStatusBadgeClass = "bg-danger-soft"; // Red for Overdue
+                                            loanStatusBadgeClass = "bg-danger-soft"; 
                                             break;
                                         case "Closed":
-                                            loanStatusBadgeClass = "bg-secondary-soft"; // Dark grey for Closed
+                                            loanStatusBadgeClass = "bg-secondary-soft"; 
                                             break;
-                                        case "Processing": // Keep info-soft for Processing or other intermediate states
+                                        case "Processing": 
                                             loanStatusBadgeClass = "bg-info-soft";
                                             break;
                                         default:
-                                            loanStatusBadgeClass = "bg-secondary-soft"; // Default to dark grey if status is unknown
+                                            loanStatusBadgeClass = "bg-secondary-soft"; 
                                             break;
                                     }
 

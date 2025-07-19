@@ -1,7 +1,8 @@
-﻿    @model CredWise_Trail.Models.Customer
+﻿    @model CredWise.Models.Customer
 
     @{
         ViewData["Title"] = "Customer Details - MyBank";
+        Layout = "~/Views/Shared/_Layout.cshtml";
     }
 
     <!DOCTYPE html>
@@ -16,10 +17,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
         <style>
-            /* ... (your existing CSS styles) ... */
             body {
                 font-family: 'Inter', sans-serif;
-                background-color: #f0f2f5; /* Consistent background */
+                background-color: #f0f2f5; 
                 min-height: 100vh;
             }
 
@@ -34,7 +34,6 @@
                 flex-direction: column;
                 flex-grow: 1;
             }
-            /* Card Styles for the details container */
             .card-details-container {
                 border: 1px solid #e9ecef;
                 border-radius: 0.75rem;
@@ -43,8 +42,8 @@
             }
 
                 .card-details-container .card-header {
-                    background-color: #0A2463; /* Primary color for header */
-                    color: #ffffff; /* White text for header */
+                    background-color: #0A2463; 
+                    color: #ffffff; 
                     border-bottom: 1px solid white;
                     font-weight: 600;
                     font-size: 1.25rem;
@@ -59,8 +58,8 @@
                     }
 
                 .card-details-container .list-group-item {
-                    padding: 1rem 1.5rem; /* Consistent padding */
-                    border-bottom: 1px solid #f0f2f5; /* Lighter border for list items */
+                    padding: 1rem 1.5rem; 
+                    border-bottom: 1px solid #f0f2f5; 
                 }
 
                     .card-details-container .list-group-item:last-child {
@@ -68,15 +67,15 @@
                     }
 
                     .card-details-container .list-group-item strong {
-                        color: #343a40; /* Darker color for labels */
-                        min-width: 150px; /* Ensure alignment of values */
+                        color: #343a40; 
+                        min-width: 150px; 
                         display: inline-block;
                     }
 
                     .card-details-container .list-group-item i.item-icon {
                         margin-right: 0.75rem;
-                        color: #0A2463; /* Primary color for item icons */
-                        width: 20px; /* Fixed width for icon alignment */
+                        color: #0A2463; 
+                        width: 20px; 
                         text-align: center;
                     }
 
@@ -96,7 +95,6 @@
                 <main class="container-fluid p-4 flex-grow-1">
                     <div class="row justify-content-center">
                         <div class="col-lg-8 col-md-10">
-                        @* Display Success Message here *@
                         @if (ViewBag.SuccessMessage != null)
                         {
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -147,13 +145,11 @@
 
         <script>
             $(document).ready(function() {
-                // Sidebar Toggle
                 $("#menu-toggle").click(function(e) {
                     e.preventDefault();
                     $("#wrapper").toggleClass("toggled");
                 });
 
-                // Initialize Bootstrap tooltips if any are used
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl)

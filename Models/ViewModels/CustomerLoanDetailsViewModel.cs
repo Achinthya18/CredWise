@@ -1,4 +1,4 @@
-﻿namespace CredWise_Trail.Models.ViewModels
+﻿namespace CredWise.Models.ViewModels
 {
     // ViewModel for the main customer table
     public class CustomerViewModel

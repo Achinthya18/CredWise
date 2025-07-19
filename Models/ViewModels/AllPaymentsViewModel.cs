@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CredWise_Trail.Models.ViewModels
+namespace CredWise.Models.ViewModels
 {
     public class AllPaymentsViewModel
     {

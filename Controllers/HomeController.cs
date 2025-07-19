@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using CredWise_Trail.Models;
+using CredWise.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CredWise_Trail.Controllers
+namespace CredWise.Controllers
 {
     public class HomeController : Controller
     {

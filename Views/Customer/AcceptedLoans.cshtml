@@ -1,9 +1,7 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model IEnumerable<CredWise_Trail.Models.LoanApplication>
+﻿@model IEnumerable<CredWise.Models.LoanApplication>
 @{
-    ViewData["Title"] = "Accepted Loans"; // Set page title
+    ViewData["Title"] = "Accepted Loans"; 
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -24,12 +22,12 @@
         }
 
         .page-header h2, .page-header .h3 {
-            color: var(--primary-brand-color); /* Applied */
+            color: var(--primary-brand-color); 
             font-weight: 700;
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Consistent background */
+            background-color: #f0f2f5;
         }
 
         .card-table-container {
@@ -38,7 +36,7 @@
             box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .04);
             background-color: #ffffff;
             margin: auto;
-            max-width: 900px; /* Increased max-width for better display */
+            max-width: 900px; 
             width: 100%;
         }
 
@@ -62,7 +60,6 @@
             padding: 0.9rem 1rem;
         }
 
-        /* Added for no applications message */
         .no-applications-message {
             text-align: center;
             padding: 2rem;
@@ -75,8 +72,8 @@
             padding: 0.5rem 1rem;
             font-size: 0.9rem;
             font-weight: 600;
-            color: #ffffff; /* Text color for the button */
-            background-color: #007bff; /* Primary blue for the button */
+            color: #ffffff; 
+            background-color: #007bff; 
             border: none;
             border-radius: 0.5rem;
             text-decoration: none;
@@ -85,7 +82,7 @@
         }
 
             .quick-action-btn:hover {
-                background-color: #0056b3; /* Darker blue on hover */
+                background-color: #0056b3; 
                 color: #ffffff;
             }
 
@@ -127,7 +124,7 @@
                                 <th><i class="fas fa-piggy-bank me-1 text-secondary"></i>Loan Product</th>
                                 <th><i class="fas fa-dollar-sign me-1 text-secondary"></i>Amount</th>
                                 <th><i class="fas fa-percentage me-1 text-secondary"></i>Int. Rate</th>
-                                <th><i class="fas fa-sack-dollar me-1 text-secondary"></i>Payment</th> @* New column for payment button *@
+                                <th><i class="fas fa-sack-dollar me-1 text-secondary"></i>Payment</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,11 +137,11 @@
                                         <td>@item.ApplicationDate.ToString("MMM dd, yyyy")</td>
                                         <td>@(item.LoanProductName ?? "N/A")</td>
                                         <td>@item.LoanAmount.ToString("C")</td>
-                                        <td>@item.InterestRate%</td> @* Assuming InterestRate is a property in your model *@
+                                        <td>@item.InterestRate%</td>
                                         <td>
                                             <a href="@Url.Action("MakePayment", "Customer", new { loanApplicationId = item.ApplicationId })" class="quick-action-btn">
                                                 <i class="fas fa-money-bill-wave"></i>
-                                                <span>Make Payment</span> @* You can add @item.LoanNumber here if you have it for display *@
+                                                <span>Make Payment</span> 
                                             </a>
                                         </td>
                                     </tr>

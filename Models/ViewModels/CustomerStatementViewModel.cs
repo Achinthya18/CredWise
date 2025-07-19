@@ -1,8 +1,7 @@
-﻿// --- In ViewModels/CustomerViewModels.cs (or your equivalent file) ---
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace CredWise_Trail.Models.ViewModels
+namespace CredWise.Models.ViewModels
 {
     public class CustomerStatementViewModel
     {
@@ -26,7 +25,6 @@ namespace CredWise_Trail.Models.ViewModels
         {
             LoanAccountsForSelection = new List<LoanAccountSelectItemViewModel>();
             LoanStatements = new List<LoanStatementDetailViewModel>();
-            // ErrorMessage will be null by default
         }
     }
 
@@ -46,10 +44,7 @@ namespace CredWise_Trail.Models.ViewModels
         public int TenureMonths { get; set; }
         public DateTime ApplicationDate { get; set; }
         public string ApprovalStatus { get; set; }
-
-        // --- NEW PROPERTY ADDED HERE ---
-        public string LoanStatus { get; set; } // To display the current status of the loan (e.g., Active, Overdue, Closed)
-        // -------------------------------
+        public string LoanStatus { get; set; }
 
         public decimal OutstandingBalance { get; set; }
         public List<RepaymentHistoryItemViewModel> RepaymentHistory { get; set; }

@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using CredWise_Trail.Models;
-using CredWise_Trail.ViewModels;
+using CredWise.Models;
+using CredWise.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using CredWise_Trail.Models.ViewModels;
+using CredWise.Models.ViewModels;
 
-namespace CredWise_Trail.Controllers
+namespace CredWise.Controllers
 {
     public class CustomerController : Controller
     {
@@ -27,13 +27,11 @@ namespace CredWise_Trail.Controllers
 
         public async Task<IActionResult> CustomerDashboard()
         {
-            //User is a property of the Controller class that gives us access to the current user. It contains information about the user's identity and claims.
             if (!User.Identity.IsAuthenticated || !User.IsInRole("Customer"))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            //out is used to take values when we have 2 return values. Since TryParse gives a bool and int as return type, we use out to store both.
             var customerIdClaim = User.FindFirstValue("CustomerId");
             if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
@@ -43,18 +41,15 @@ namespace CredWise_Trail.Controllers
 
             var viewModel = new CustomerDashboardViewModel();
 
-            //Eager Loading
             var relevantLoans = await _context.LoanApplications
                 .Where(l => l.CustomerId == customerId &&
-                            (l.LoanStatus == "Active" || l.LoanStatus == "Overdue")) 
+                              (l.LoanStatus == "Active" || l.LoanStatus == "Overdue"))
                 .ToListAsync();
 
             if (relevantLoans != null && relevantLoans.Any())
             {
-                viewModel.HasActiveLoans = true; 
-                                                 
-                viewModel.ActiveLoanCount = relevantLoans.Count; 
-
+                viewModel.HasActiveLoans = true;
+                viewModel.ActiveLoanCount = relevantLoans.Count;
                 viewModel.TotalPrincipalAmount = relevantLoans.Sum(l => l.LoanAmount);
                 viewModel.TotalOutstandingBalance = relevantLoans.Sum(l => l.OutstandingBalance);
                 viewModel.TotalNextPaymentAmount = relevantLoans.Sum(l => l.AmountDue);
@@ -70,14 +65,12 @@ namespace CredWise_Trail.Controllers
                     viewModel.OverallProgressPercentage = 0;
                 }
 
-
                 var relevantLoanIds = relevantLoans.Select(l => l.ApplicationId).ToList();
 
-                //Chained Eager Loading
                 var recentPayments = await _context.LoanPayments
-                    .Include(p => p.LoanApplication)      
-                        .ThenInclude(la => la.LoanProduct) 
-                    .Where(p => relevantLoanIds.Contains(p.LoanId)) 
+                    .Include(p => p.LoanApplication)
+                        .ThenInclude(la => la.LoanProduct)
+                    .Where(p => relevantLoanIds.Contains(p.LoanId))
                     .OrderByDescending(p => p.PaymentDate)
                     .Take(5)
                     .ToListAsync();
@@ -108,11 +101,11 @@ namespace CredWise_Trail.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var customerIdClaim = User.FindFirstValue("CustomerId"); 
+            var customerIdClaim = User.FindFirstValue("CustomerId");
             if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
                 TempData["ErrorMessage"] = "Could not identify customer. Please log in again.";
-                return RedirectToAction("Logout", "Account"); 
+                return RedirectToAction("Logout", "Account");
             }
             var viewModel = new AllPaymentsViewModel();
 
@@ -126,7 +119,7 @@ namespace CredWise_Trail.Controllers
                 var allPayments = await _context.LoanPayments
                     .Include(p => p.LoanApplication)
                         .ThenInclude(la => la.LoanProduct)
-                    .Where(p => customerLoanIds.Contains(p.LoanId)) 
+                    .Where(p => customerLoanIds.Contains(p.LoanId))
                     .OrderByDescending(p => p.PaymentDate)
                     .ToListAsync();
 
@@ -147,7 +140,6 @@ namespace CredWise_Trail.Controllers
         }
 
         [HttpGet]
-
         public async Task<IActionResult> LoanApplication()
         {
             if (!User.Identity.IsAuthenticated || !User.IsInRole("Customer"))
@@ -155,20 +147,19 @@ namespace CredWise_Trail.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var customerIdClaim = User.FindFirstValue("CustomerId"); // Using your existing claim type
+            var customerIdClaim = User.FindFirstValue("CustomerId");
             if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
                 TempData["ErrorMessage"] = "Could not identify customer. Please log in again.";
                 return RedirectToAction("Logout", "Account");
             }
 
-            // Fetch the most recent KYC record for the customer
             var latestKyc = await _context.KycApprovals
                                           .Where(k => k.CustomerId == customerId)
                                           .OrderByDescending(k => k.SubmissionDate)
                                           .FirstOrDefaultAsync();
 
-            ViewData["ShowLoanForm"] = false; // Default: do not show the loan form
+            ViewData["ShowLoanForm"] = false;
 
             if (latestKyc != null)
             {
@@ -180,23 +171,17 @@ namespace CredWise_Trail.Controllers
                         var loanProducts = await _context.LoanProducts.ToListAsync();
                         ViewBag.LoanProducts = loanProducts;
 
-                        // *** NEW LOGIC STARTS HERE ***
-                        // Find loan products the customer already has an active or pending application for.
-                        // This code is robust and handles duplicate LoanProductIds gracefully
                         var existingLoans = await _context.LoanApplications
                             .Where(la => la.CustomerId == customerId && la.LoanProductId.HasValue &&
-                                            (la.ApprovalStatus == "Pending" || la.LoanStatus == "Active" || la.LoanStatus == "Overdue"))
-                            .GroupBy(la => la.LoanProductId.Value) // 1. Group by the key that was causing duplicates
-                            .Select(g => g.OrderByDescending(la => la.ApplicationDate).First()) // 2. From each group, select only the most recent application
+                                           (la.ApprovalStatus == "Pending" || la.LoanStatus == "Active" || la.LoanStatus == "Overdue"))
+                            .GroupBy(la => la.LoanProductId.Value)
+                            .Select(g => g.OrderByDescending(la => la.ApplicationDate).First())
                             .ToDictionaryAsync(
-                                la => la.LoanProductId.Value, // Now this key is guaranteed to be unique
+                                la => la.LoanProductId.Value,
                                 la => la.ApprovalStatus == "Pending" ? "Pending" : "Active"
-                            ); // Simplified status for the alert
+                            );
 
-                        // Pass this dictionary to the view.
                         ViewData["RestrictedLoanProducts"] = existingLoans;
-                        // *** NEW LOGIC ENDS HERE ***
-
                         break;
                     case "Pending":
                         TempData["WarningMessage"] = "Your KYC verification is currently pending. It must be approved before you can apply for a loan.";
@@ -226,8 +211,6 @@ namespace CredWise_Trail.Controllers
             return View();
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyForLoan(int loanProductId, decimal loanAmount, int tenure)
@@ -242,14 +225,14 @@ namespace CredWise_Trail.Controllers
             {
                 ModelState.AddModelError("", "Unable to identify customer. Please log in again.");
                 ViewBag.LoanProducts = await _context.LoanProducts.ToListAsync();
-                ViewData["ShowLoanForm"] = true; 
-                return View("LoanApplication"); 
+                ViewData["ShowLoanForm"] = true;
+                return View("LoanApplication");
             }
 
             var selectedLoanProduct = await _context.LoanProducts.FindAsync(loanProductId);
             if (selectedLoanProduct == null)
             {
-                ModelState.AddModelError("loanProductId", "Selected loan product is invalid."); 
+                ModelState.AddModelError("loanProductId", "Selected loan product is invalid.");
                 ViewBag.LoanProducts = await _context.LoanProducts.ToListAsync();
                 ViewData["ShowLoanForm"] = true;
                 return View("LoanApplication");
@@ -310,7 +293,7 @@ namespace CredWise_Trail.Controllers
                     {
                         calculatedEmi = principal / tenureInMonths;
                     }
-                    else if (1 + r <= 0 && n % 1 != 0) 
+                    else if (1 + r <= 0 && n % 1 != 0)
                     {
                         Console.WriteLine($"Warning: Math.Pow unstable condition for EMI calculation. Rate: {r}, Principal: {p}, Tenure: {n}. Falling back to simple division.");
                         calculatedEmi = principal / n;
@@ -321,7 +304,7 @@ namespace CredWise_Trail.Controllers
                         if (double.IsNaN(emiDouble) || double.IsInfinity(emiDouble))
                         {
                             Console.WriteLine($"Warning: EMI calculation resulted in NaN or Infinity. Rate: {r}, Principal: {p}, Tenure: {n}. Falling back to simple division.");
-                            calculatedEmi = principal / tenureInMonths; 
+                            calculatedEmi = principal / tenureInMonths;
                         }
                         else
                         {
@@ -333,7 +316,6 @@ namespace CredWise_Trail.Controllers
             decimal finalCalculatedEmi = Math.Round(calculatedEmi, 2);
             Console.WriteLine($"ApplyForLoan POST (CustomerId: {customerId}): LoanAmount={loanAmount}, Rate={annualInterestRatePercent}, Tenure={tenureInMonths}, Calculated EMI={finalCalculatedEmi}");
 
-
             var loanApplication = new LoanApplication
             {
                 CustomerId = customerId,
@@ -344,15 +326,13 @@ namespace CredWise_Trail.Controllers
                 InterestRate = selectedLoanProduct.InterestRate,
                 TenureMonths = tenure,
                 LoanNumber = "APL-" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
-
                 EMI = finalCalculatedEmi,
-                LoanProductName= selectedLoanProduct.ProductName,
-
-                OutstandingBalance = 0, 
+                LoanProductName = selectedLoanProduct.ProductName,
+                OutstandingBalance = 0,
                 NextDueDate = null,
                 LastPaymentDate = null,
-                AmountDue = 0,          
-                LoanStatus = "Pending", 
+                AmountDue = 0,
+                LoanStatus = "Pending",
                 OverdueMonths = 0,
                 CurrentOverdueAmount = 0
             };
@@ -385,14 +365,14 @@ namespace CredWise_Trail.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var customerIdClaim = User.FindFirstValue("CustomerId"); 
+            var customerIdClaim = User.FindFirstValue("CustomerId");
 
             var viewModel = new CustomerStatementViewModel();
 
             if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
                 TempData["ErrorMessage"] = "Could not identify customer. Please log in again.";
-                return RedirectToAction("Logout", "Account"); 
+                return RedirectToAction("Logout", "Account");
             }
 
             try
@@ -409,7 +389,7 @@ namespace CredWise_Trail.Controllers
 
                 var loanApplications = await _context.LoanApplications
                     .Where(la => la.CustomerId == customerId)
-                    .Include(la => la.LoanProduct) 
+                    .Include(la => la.LoanProduct)
                     .Include(la => la.Repayments)
                     .ToListAsync();
 
@@ -419,20 +399,20 @@ namespace CredWise_Trail.Controllers
                     {
                         LoanIdValue = app.LoanNumber,
                         LoanDisplayText = $"{app.LoanProductName} " +
-                        $"({app.LoanNumber}) - ₹{app.LoanAmount:N0}" 
+                        $"({app.LoanNumber}) - ₹{app.LoanAmount:N0}"
                     });
 
                     var loanDetail = new LoanStatementDetailViewModel
                     {
-                        UniqueLoanIdentifier = app.LoanNumber, 
-                        ApplicationIdDisplay = app.LoanNumber, 
-                        ProductName = app.LoanProductName, 
+                        UniqueLoanIdentifier = app.LoanNumber,
+                        ApplicationIdDisplay = app.LoanNumber,
+                        ProductName = app.LoanProductName,
                         LoanAmount = app.LoanAmount,
-                        InterestRate = app.InterestRate, 
+                        InterestRate = app.InterestRate,
                         TenureMonths = app.TenureMonths,
                         ApplicationDate = app.ApplicationDate,
-                        ApprovalStatus = app.ApprovalStatus, 
-                        LoanStatus = app.LoanStatus,        
+                        ApprovalStatus = app.ApprovalStatus,
+                        LoanStatus = app.LoanStatus,
                         OutstandingBalance = app.OutstandingBalance
                     };
 
@@ -445,15 +425,15 @@ namespace CredWise_Trail.Controllers
                                 RepaymentId = repayment.RepaymentId,
                                 DueDate = repayment.DueDate,
                                 AmountDue = repayment.AmountDue,
-                                PaymentDate = repayment.PaymentDate, 
-                                PaymentStatus = repayment.PaymentStatus 
+                                PaymentDate = repayment.PaymentDate,
+                                PaymentStatus = repayment.PaymentStatus
                             });
                         }
                     }
                     viewModel.LoanStatements.Add(loanDetail);
                 }
 
-                if (loanApplications.Any()) 
+                if (loanApplications.Any())
                 {
                     string activeStatusString = LoanOverallStatus.ACTIVE.ToString();
                     string overdueStatusString = LoanOverallStatus.OVERDUE.ToString();
@@ -462,10 +442,9 @@ namespace CredWise_Trail.Controllers
 
                     viewModel.TotalActiveLoans = loanApplications
                         .Count(la => !string.IsNullOrEmpty(la.LoanStatus) &&
-                                     (la.LoanStatus.Equals(activeStatusString, StringComparison.OrdinalIgnoreCase) ||
-                                      la.LoanStatus.Equals(overdueStatusString, StringComparison.OrdinalIgnoreCase)));
+                                       (la.LoanStatus.Equals(activeStatusString, StringComparison.OrdinalIgnoreCase) ||
+                                        la.LoanStatus.Equals(overdueStatusString, StringComparison.OrdinalIgnoreCase)));
 
-                    
                     viewModel.TotalAmountDisbursed = loanApplications
                         .Where(la =>
                             (!string.IsNullOrEmpty(la.ApprovalStatus) &&
@@ -496,10 +475,8 @@ namespace CredWise_Trail.Controllers
             catch (Exception ex)
             {
                 viewModel.ErrorMessage = "An unexpected error occurred while retrieving your statement data. Please try again later or contact support.";
-
                 viewModel.LoanStatements?.Clear();
                 viewModel.LoanAccountsForSelection?.Clear();
-
                 viewModel.TotalActiveLoans = 0;
                 viewModel.TotalAmountDisbursed = 0;
                 viewModel.TotalOutstandingAmount = 0;
@@ -523,10 +500,10 @@ namespace CredWise_Trail.Controllers
             }
 
             var customerLoanApplications = await _context.LoanApplications
-                                                            .Where(la => la.CustomerId == customerId)
-                                                            .Include(la => la.LoanProduct)
-                                                            .OrderByDescending(la => la.ApplicationDate)
-                                                            .ToListAsync();
+                                                         .Where(la => la.CustomerId == customerId)
+                                                         .Include(la => la.LoanProduct)
+                                                         .OrderByDescending(la => la.ApplicationDate)
+                                                         .ToListAsync();
 
             return View(customerLoanApplications);
         }
@@ -535,7 +512,6 @@ namespace CredWise_Trail.Controllers
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> KYCUpload()
         {
-
             var customerIdClaim = User.FindFirst("CustomerId");
             if (customerIdClaim == null || !int.TryParse(customerIdClaim.Value, out int customerId))
             {
@@ -544,9 +520,9 @@ namespace CredWise_Trail.Controllers
             }
 
             var latestKyc = await _context.KycApprovals
-                                        .Where(k => k.CustomerId == customerId)
-                                        .OrderByDescending(k => k.SubmissionDate)
-                                        .FirstOrDefaultAsync();
+                                         .Where(k => k.CustomerId == customerId)
+                                         .OrderByDescending(k => k.SubmissionDate)
+                                         .FirstOrDefaultAsync();
 
             var model = new KycUploadViewModel();
 
@@ -575,7 +551,7 @@ namespace CredWise_Trail.Controllers
             else
             {
                 ViewData["ShowForm"] = true;
-                ViewData["CurrentKycStatus"] = "Not Submitted"; 
+                ViewData["CurrentKycStatus"] = "Not Submitted";
             }
 
             return View(model);
@@ -585,211 +561,116 @@ namespace CredWise_Trail.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> KYCUpload(KycUploadViewModel model)
-
         {
-
             var customerIdClaim = User.FindFirst("CustomerId");
-
             if (customerIdClaim == null || !int.TryParse(customerIdClaim.Value, out int customerId))
-
             {
-
                 TempData["ErrorMessage"] = "Could not identify customer. Please log in again.";
-
                 return RedirectToAction("Logout", "Account");
-
             }
 
             var existingKyc = await _context.KycApprovals
-
-                                            .FirstOrDefaultAsync(k => k.CustomerId == customerId);
+                                          .FirstOrDefaultAsync(k => k.CustomerId == customerId);
 
             if (existingKyc != null && existingKyc.Status == "Approved")
-
             {
-
                 TempData["InfoMessage"] = "Your KYC is already approved. You cannot submit new documents.";
-
                 return RedirectToAction("CustomerDashboard");
-
             }
 
             if (ModelState.IsValid)
-
             {
-
                 string contentRootPath = Directory.GetCurrentDirectory();
-
                 string uploadFolder = Path.Combine(contentRootPath, "kyc_documents");
-
                 if (!Directory.Exists(uploadFolder))
-
                 {
-
                     Directory.CreateDirectory(uploadFolder);
-
                 }
 
                 if (model.IdentityProofFile == null || model.IdentityProofFile.Length == 0)
-
                 {
-
                     ModelState.AddModelError("IdentityProofFile", "Identity proof document is required.");
-
                     TempData["ErrorMessage"] = "Identity proof document is required.";
-
                     return View(model);
-
                 }
 
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
-
                 var fileExtension = Path.GetExtension(model.IdentityProofFile.FileName).ToLowerInvariant();
-
                 if (!allowedExtensions.Contains(fileExtension))
-
                 {
-
                     ModelState.AddModelError("IdentityProofFile", "Invalid file type. Only JPG, PNG, PDF are allowed.");
-
                     TempData["ErrorMessage"] = "Invalid file type submitted.";
-
                     return View(model);
-
                 }
 
                 long maxFileSize = 5 * 1024 * 1024; // 5MB
-
                 if (model.IdentityProofFile.Length > maxFileSize)
-
                 {
-
                     ModelState.AddModelError("IdentityProofFile", "File size exceeds the 5MB limit.");
-
                     TempData["ErrorMessage"] = "File size exceeds the 5MB limit.";
-
                     return View(model);
-
                 }
 
                 try
-
                 {
-
                     string newIdentityFileName = $"{customerId}_{Guid.NewGuid()}_identity{fileExtension}";
-
                     string newFilePath = Path.Combine(uploadFolder, newIdentityFileName);
-
                     using (var fileStream = new FileStream(newFilePath, FileMode.Create))
-
                     {
-
                         await model.IdentityProofFile.CopyToAsync(fileStream);
-
                     }
 
                     if (existingKyc != null)
-
                     {
-
                         if (!string.IsNullOrEmpty(existingKyc.DocumentPath))
-
                         {
-
                             string oldFilePath = Path.Combine(uploadFolder, existingKyc.DocumentPath);
-
                             if (System.IO.File.Exists(oldFilePath))
-
                             {
-
                                 System.IO.File.Delete(oldFilePath);
-
                             }
-
                         }
-
                         existingKyc.SubmissionDate = DateTime.UtcNow;
-
                         existingKyc.Status = "Pending";
-
                         existingKyc.DocumentPath = newIdentityFileName;
-
                         _context.KycApprovals.Update(existingKyc);
-
                         TempData["SuccessMessage"] = "Your updated KYC documents have been submitted successfully! Your verification is pending review.";
-
                     }
-
                     else
-
                     {
-
                         var newKycApproval = new KycApproval
-
                         {
-
                             CustomerId = customerId,
-
                             SubmissionDate = DateTime.UtcNow,
-
                             Status = "Pending",
-
                             DocumentPath = newIdentityFileName,
-
                         };
-
                         _context.KycApprovals.Add(newKycApproval);
-
                         TempData["SuccessMessage"] = "KYC documents uploaded successfully! Your verification is pending review.";
-
                     }
-
                     await _context.SaveChangesAsync();
-
                     return RedirectToAction("KYCUpload");
-
                 }
-
                 catch (Exception ex)
-
                 {
-
                     Console.WriteLine($"Error uploading KYC documents: {ex.Message}");
-
                     TempData["ErrorMessage"] = "An error occurred during document upload. Please try again.";
-
                     ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
-
                 }
-
             }
-
             else
-
             {
-
                 foreach (var state in ModelState)
-
                 {
-
                     foreach (var error in state.Value.Errors)
-
                     {
-
                         Console.WriteLine($"ModelState Error: {state.Key} - {error.ErrorMessage}");
-
                     }
-
                 }
-
                 TempData["ErrorMessage"] = "Please correct the errors below and try again.";
-
             }
-
             return View(model);
-
         }
-
 
         [HttpGet]
         public async Task<IActionResult> CustomerDetails()
@@ -826,7 +707,7 @@ namespace CredWise_Trail.Controllers
         }
 
         [HttpGet]
-        [Authorize]     
+        [Authorize]
         public async Task<IActionResult> CustomerUpdate()
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -869,7 +750,7 @@ namespace CredWise_Trail.Controllers
                 var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (customerToUpdate.CustomerId.ToString() != loggedInUserId)
                 {
-                    return Forbid(); 
+                    return Forbid();
                 }
 
                 customerToUpdate.Name = model.Name;
@@ -909,8 +790,8 @@ namespace CredWise_Trail.Controllers
             }
 
             var loanApplication = await _context.LoanApplications
-                                        .Include(la => la.LoanProduct)
-                                        .FirstOrDefaultAsync(la => la.ApplicationId == loanApplicationId && la.CustomerId == customerId);
+                                            .Include(la => la.LoanProduct)
+                                            .FirstOrDefaultAsync(la => la.ApplicationId == loanApplicationId && la.CustomerId == customerId);
 
             if (loanApplication == null)
             {
@@ -918,7 +799,7 @@ namespace CredWise_Trail.Controllers
                 return RedirectToAction("AcceptedLoans");
             }
 
-            ViewBag.ShowPaymentForm = false; 
+            ViewBag.ShowPaymentForm = false;
             ViewBag.PaymentButtonText = "Make Payment";
             ViewBag.PaymentFormDisabledMessage = "";
             ViewBag.DisplayLoanStatus = loanApplication.LoanStatus;
@@ -934,7 +815,7 @@ namespace CredWise_Trail.Controllers
             {
                 ViewBag.NoPaymentDueMessage = "This loan is not yet active for payments.";
             }
-            else 
+            else
             {
                 DateTime today = DateTime.Now.Date;
                 bool isEffectivelyOverdue = false;
@@ -943,21 +824,21 @@ namespace CredWise_Trail.Controllers
 
                 var pastDueRepayments = await _context.Repayments
                     .Where(r => r.ApplicationId == loanApplication.ApplicationId &&
-                                 r.PaymentStatus == "PENDING" &&
-                                 r.DueDate.Date < today)
+                                  r.PaymentStatus == "PENDING" &&
+                                  r.DueDate.Date < today)
                     .OrderBy(r => r.DueDate)
                     .ToListAsync();
 
                 if (pastDueRepayments.Any())
                 {
                     isEffectivelyOverdue = true;
-                    ViewBag.DisplayLoanStatus = "Overdue"; 
+                    ViewBag.DisplayLoanStatus = "Overdue";
                     effectiveOverdueMonthsCount = pastDueRepayments.Count;
                     effectiveOverdueAmountTotal = pastDueRepayments.Sum(r => r.AmountDue);
 
                     ViewBag.DisplayOverdueMonths = effectiveOverdueMonthsCount;
                     ViewBag.DisplayCurrentOverdueAmount = effectiveOverdueAmountTotal;
-                    ViewBag.DisplayAmountDue = effectiveOverdueAmountTotal; 
+                    ViewBag.DisplayAmountDue = effectiveOverdueAmountTotal;
 
                     if (loanApplication.NextDueDate.HasValue && loanApplication.NextDueDate.Value.Date >= today)
                     {
@@ -976,7 +857,6 @@ namespace CredWise_Trail.Controllers
                     ViewBag.DisplayAmountDue = loanApplication.AmountDue;
                     if (loanApplication.LoanStatus == "Overdue" && loanApplication.CurrentOverdueAmount > 0)
                     {
-                        
                         ViewBag.DisplayAmountDue = loanApplication.CurrentOverdueAmount;
                     }
                 }
@@ -986,7 +866,7 @@ namespace CredWise_Trail.Controllers
                     DateTime nextDueDateValue = loanApplication.NextDueDate.Value.Date;
                     var repaymentForNextDueDate = await _context.Repayments
                         .FirstOrDefaultAsync(r => r.ApplicationId == loanApplication.ApplicationId &&
-                                             r.DueDate.Date == nextDueDateValue);
+                                               r.DueDate.Date == nextDueDateValue);
 
                     if (repaymentForNextDueDate != null && repaymentForNextDueDate.PaymentStatus == "PENDING")
                     {
@@ -994,7 +874,7 @@ namespace CredWise_Trail.Controllers
                         {
                             ViewBag.ShowPaymentForm = true;
                         }
-                        else 
+                        else
                         {
                             ViewBag.ShowPaymentForm = false;
                             ViewBag.PaymentFormDisabledMessage = $"Next payment for {nextDueDateValue:MMMM d, yyyy} is scheduled. Payment option will be available from {new DateTime(nextDueDateValue.Year, nextDueDateValue.Month, 1):MMMM d, yyyy}.";
@@ -1004,11 +884,11 @@ namespace CredWise_Trail.Controllers
                     {
                         ViewBag.ShowPaymentForm = false;
                         ViewBag.PaymentFormDisabledMessage = $"Installment for {nextDueDateValue:MMMM d, yyyy} has been paid. The system will update to the next due date shortly.";
-                        
+
                         var actualNextPending = await _context.Repayments
-                                                   .Where(r => r.ApplicationId == loanApplication.ApplicationId && r.PaymentStatus == "PENDING")
-                                                   .OrderBy(r => r.DueDate)
-                                                   .FirstOrDefaultAsync();
+                                                            .Where(r => r.ApplicationId == loanApplication.ApplicationId && r.PaymentStatus == "PENDING")
+                                                            .OrderBy(r => r.DueDate)
+                                                            .FirstOrDefaultAsync();
                         if (actualNextPending != null)
                         {
                             ViewBag.PaymentFormDisabledMessage += $" Next payment is due on {actualNextPending.DueDate:MMMM d, yyyy}.";
@@ -1016,22 +896,20 @@ namespace CredWise_Trail.Controllers
                         else
                         {
                             ViewBag.PaymentFormDisabledMessage = "All scheduled payments have been made or the loan is being finalized.";
-                            
                         }
 
                     }
                     else if (repaymentForNextDueDate == null && loanApplication.OutstandingBalance > 0)
                     {
-                        ViewBag.ShowPaymentForm = false; 
+                        ViewBag.ShowPaymentForm = false;
                         ViewBag.PaymentFormDisabledMessage = "Payment schedule details for the upcoming due date are currently inconsistent. Please contact support.";
-                        
                     }
                 }
                 else if (isEffectivelyOverdue)
                 {
-                    ViewBag.ShowPaymentForm = true; 
+                    ViewBag.ShowPaymentForm = true;
                 }
-                else if (loanApplication.OutstandingBalance > 0) 
+                else if (loanApplication.OutstandingBalance > 0)
                 {
                     ViewBag.PaymentFormDisabledMessage = "Loan is active but has no upcoming due date. Please contact support.";
                 }
@@ -1039,7 +917,7 @@ namespace CredWise_Trail.Controllers
                 if (ViewBag.DisplayLoanStatus == "Overdue" && ViewBag.DisplayCurrentOverdueAmount > 0)
                 {
                     ViewBag.ShowPaymentForm = true;
-                    ViewBag.PaymentFormDisabledMessage = ""; 
+                    ViewBag.PaymentFormDisabledMessage = "";
                 }
             }
 
@@ -1050,7 +928,7 @@ namespace CredWise_Trail.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessPayment(int loanId, decimal paidAmount, string paymentMethod)
         {
-            var customerIdClaim = User.FindFirst("CustomerId"); 
+            var customerIdClaim = User.FindFirst("CustomerId");
             if (customerIdClaim == null || !int.TryParse(customerIdClaim.Value, out int currentCustomerId))
             {
                 return Json(new { success = false, message = "User not authenticated or CustomerId not found in claims." });
@@ -1062,8 +940,8 @@ namespace CredWise_Trail.Controllers
             }
 
             var loanApplication = await _context.LoanApplications
-                                                .Include(la => la.Repayments.Where(r => r.PaymentStatus == "PENDING").OrderBy(r => r.DueDate))
-                                                .FirstOrDefaultAsync(la => la.ApplicationId == loanId && la.CustomerId == currentCustomerId);
+                                              .Include(la => la.Repayments.Where(r => r.PaymentStatus == "PENDING").OrderBy(r => r.DueDate))
+                                              .FirstOrDefaultAsync(la => la.ApplicationId == loanId && la.CustomerId == currentCustomerId);
 
             if (loanApplication == null)
             {
@@ -1080,13 +958,13 @@ namespace CredWise_Trail.Controllers
             }
             var payment = new LoanPayment
             {
-                LoanId = loanApplication.ApplicationId, 
+                LoanId = loanApplication.ApplicationId,
                 CustomerId = loanApplication.CustomerId,
                 PaidAmount = paidAmount,
                 PaymentDate = DateTime.Now,
                 PaymentMethod = paymentMethod,
-                TransactionId = $"MOCKTRX{DateTime.Now.Ticks}", 
-                Status = "Success" 
+                TransactionId = $"MOCKTRX{DateTime.Now.Ticks}",
+                Status = "Success"
             };
             _context.LoanPayments.Add(payment);
 
@@ -1096,12 +974,12 @@ namespace CredWise_Trail.Controllers
             if (loanApplication.LoanStatus == "Overdue" ||
                 loanApplication.Repayments.Any(r => r.DueDate.Date < today))
             {
-                if (loanApplication.LoanStatus != "Overdue") loanApplication.LoanStatus = "Overdue"; 
+                if (loanApplication.LoanStatus != "Overdue") loanApplication.LoanStatus = "Overdue";
 
                 var pendingOverdueRepayments = loanApplication.Repayments
-                                                    .Where(r => r.DueDate.Date < today)
-                                                    .OrderBy(r => r.DueDate) 
-                                                    .ToList();
+                                                            .Where(r => r.DueDate.Date < today)
+                                                            .OrderBy(r => r.DueDate)
+                                                            .ToList();
 
                 foreach (var repayment in pendingOverdueRepayments)
                 {
@@ -1110,7 +988,7 @@ namespace CredWise_Trail.Controllers
                     decimal amountToApplyToThisRepayment = Math.Min(remainingAmountToAllocate, repayment.AmountDue);
                     decimal interestForThisEmiPeriod = CalculateInterestForPeriod(loanApplication.OutstandingBalance, loanApplication.InterestRate);
                     decimal principalFromThisEmi = Math.Max(0, amountToApplyToThisRepayment - interestForThisEmiPeriod);
-                    principalFromThisEmi = Math.Min(principalFromThisEmi, loanApplication.OutstandingBalance); 
+                    principalFromThisEmi = Math.Min(principalFromThisEmi, loanApplication.OutstandingBalance);
 
                     loanApplication.OutstandingBalance -= principalFromThisEmi;
                     repayment.PaymentDate = DateTime.Now;
@@ -1123,7 +1001,7 @@ namespace CredWise_Trail.Controllers
                 && remainingAmountToAllocate > 0)
             {
                 var nextPendingRepayments = loanApplication.Repayments
-                                            .Where(r => r.PaymentStatus == "PENDING") 
+                                            .Where(r => r.PaymentStatus == "PENDING")
                                             .OrderBy(r => r.DueDate)
                                             .ToList();
 
@@ -1143,7 +1021,7 @@ namespace CredWise_Trail.Controllers
                 }
             }
 
-            if (loanApplication.OutstandingBalance < 0.01m && loanApplication.OutstandingBalance > -0.01m) 
+            if (loanApplication.OutstandingBalance < 0.01m && loanApplication.OutstandingBalance > -0.01m)
             {
                 loanApplication.OutstandingBalance = 0;
             }
@@ -1164,7 +1042,6 @@ namespace CredWise_Trail.Controllers
             }
             else
             {
-                
                 allTrackedRepaymentsForThisLoan = loanApplication.Repayments?.ToList() ?? new List<Repayment>();
                 System.Diagnostics.Debug.WriteLine($"Warning/Info: Using loanApplication.Repayments navigation property as fallback for final calc. Count: {allTrackedRepaymentsForThisLoan.Count}");
                 foreach (var rep in allTrackedRepaymentsForThisLoan.OrderBy(r => r.DueDate))
@@ -1174,18 +1051,16 @@ namespace CredWise_Trail.Controllers
             }
             System.Diagnostics.Debug.WriteLine("--- End Repayment States from ChangeTracker ---");
 
-
-            var finalPastDueRepayments = allTrackedRepaymentsForThisLoan 
+            var finalPastDueRepayments = allTrackedRepaymentsForThisLoan
                 .Where(r => r.PaymentStatus == "PENDING" && r.DueDate.Date < today)
                 .ToList();
 
-            var nextUpcomingPendingRepayment = allTrackedRepaymentsForThisLoan 
+            var nextUpcomingPendingRepayment = allTrackedRepaymentsForThisLoan
                 .Where(r => r.PaymentStatus == "PENDING")
                 .OrderBy(r => r.DueDate)
                 .FirstOrDefault();
 
             System.Diagnostics.Debug.WriteLine($"Final Calc - From Tracked Repayments: Found {finalPastDueRepayments.Count} PENDING past due. Next upcoming PENDING: {nextUpcomingPendingRepayment?.DueDate.ToShortDateString() ?? "None"} (RepaymentID: {nextUpcomingPendingRepayment?.RepaymentId}, Status: {nextUpcomingPendingRepayment?.PaymentStatus})");
-
 
             if (loanApplication.OutstandingBalance <= 0.01m && !finalPastDueRepayments.Any() && nextUpcomingPendingRepayment == null)
             {
@@ -1202,18 +1077,17 @@ namespace CredWise_Trail.Controllers
                 loanApplication.LoanStatus = "Overdue";
                 loanApplication.OverdueMonths = finalPastDueRepayments.Count;
                 loanApplication.CurrentOverdueAmount = finalPastDueRepayments.Sum(r => r.AmountDue);
-
                 loanApplication.AmountDue = loanApplication.CurrentOverdueAmount;
                 if (nextUpcomingPendingRepayment != null &&
-                    !finalPastDueRepayments.Any(pr => pr.RepaymentId == nextUpcomingPendingRepayment.RepaymentId) && 
-                    nextUpcomingPendingRepayment.DueDate.Date >= today) 
+                    !finalPastDueRepayments.Any(pr => pr.RepaymentId == nextUpcomingPendingRepayment.RepaymentId) &&
+                    nextUpcomingPendingRepayment.DueDate.Date >= today)
                 {
                     loanApplication.AmountDue += nextUpcomingPendingRepayment.AmountDue;
                 }
-                loanApplication.NextDueDate = nextUpcomingPendingRepayment?.DueDate; 
+                loanApplication.NextDueDate = nextUpcomingPendingRepayment?.DueDate;
                 System.Diagnostics.Debug.WriteLine($"LA State set in OVERDUE block: Status='{loanApplication.LoanStatus}', OverdueMonths='{loanApplication.OverdueMonths}', CurrentOverdueAmount='{loanApplication.CurrentOverdueAmount}', NextDueDate='{loanApplication.NextDueDate?.ToShortDateString()}', Calc AmountDue='{loanApplication.AmountDue}'");
             }
-            else 
+            else
             {
                 loanApplication.LoanStatus = "Active";
                 loanApplication.OverdueMonths = 0;
@@ -1229,21 +1103,21 @@ namespace CredWise_Trail.Controllers
 
             try
             {
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
                 return Json(new
                 {
                     success = true,
                     message = $"Payment of INR {paidAmount:N2} processed successfully.",
                     loanStatus = loanApplication.LoanStatus,
                     outstandingBalance = loanApplication.OutstandingBalance,
-                    nextDueDate = loanApplication.NextDueDate?.ToString("yyyy-MM-dd"), 
-                    amountDue = loanApplication.AmountDue, 
+                    nextDueDate = loanApplication.NextDueDate?.ToString("yyyy-MM-dd"),
+                    amountDue = loanApplication.AmountDue,
                     currentOverdueAmount = loanApplication.CurrentOverdueAmount,
                     overdueMonths = loanApplication.OverdueMonths,
-                    emi = loanApplication.EMI 
+                    emi = loanApplication.EMI
                 });
             }
-            catch (DbUpdateException ex) 
+            catch (DbUpdateException ex)
             {
                 Console.WriteLine($"Error processing payment for LoanId {loanId}: {ex.Message} {ex.InnerException?.Message} {ex.StackTrace}");
                 return Json(new { success = false, message = "An error occurred while saving the payment details. Please try again." });
@@ -1263,35 +1137,35 @@ namespace CredWise_Trail.Controllers
         }
         public async Task<IActionResult> AcceptedLoans()
         {
-            var customerIdClaim = User.FindFirst("CustomerId"); 
+            var customerIdClaim = User.FindFirst("CustomerId");
             if (customerIdClaim == null || !int.TryParse(customerIdClaim.Value, out int customerId))
             {
                 TempData["ErrorMessage"] = "Authentication error: Customer ID not found.";
-                return RedirectToAction("Login", "Account"); 
+                return RedirectToAction("Login", "Account");
             }
 
             var approvedLoans = await _context.LoanApplications
-                                            .Include(l => l.LoanProduct) 
+                                            .Include(l => l.LoanProduct)
                                             .Where(l => l.CustomerId == customerId && l.ApprovalStatus == "Approved")
-                                            .Where(l => l.LoanStatus != "Closed") 
+                                            .Where(l => l.LoanStatus != "Closed")
                                             .ToListAsync();
 
             bool hasChanges = false;
             foreach (var loan in approvedLoans)
             {
-                if (loan.LoanStatus == "Pending Disbursement") 
+                if (loan.LoanStatus == "Pending Disbursement")
                 {
                 }
             }
             if (hasChanges)
             {
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
             }
             foreach (var loan in approvedLoans)
             {
                 Console.WriteLine($"AcceptedLoans Action: LoanApplicationId = {loan.ApplicationId}, ApprovalStatus = {loan.ApprovalStatus}, CustomerId = {loan.CustomerId}");
             }
-            return View(approvedLoans); 
+            return View(approvedLoans);
         }
     }
 }

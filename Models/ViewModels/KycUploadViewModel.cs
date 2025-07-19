@@ -1,8 +1,7 @@
-﻿// In your ViewModels folder (e.g., CredWise_Trail.ViewModels/KycUploadViewModel.cs)
-using Microsoft.AspNetCore.Http; // Required for IFormFile
+﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace CredWise_Trail.ViewModels
+namespace CredWise.ViewModels
 {
     public class KycUploadViewModel
     {

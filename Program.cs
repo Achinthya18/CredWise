@@ -1,5 +1,5 @@
-using CredWise_Trail.Models;
-using CredWise_Trail.Services;
+using CredWise.Models;
+using CredWise.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
@@ -12,7 +12,7 @@ builder.Services.AddScoped<LoanUpdateOrchestratorService>();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<BankLoanManagementDbContext>(options =>
-    options.UseSqlServer(builder.Configuration["DefaultConnection"]));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

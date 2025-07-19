@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CredWise_Trail.Models.ViewModels
+namespace CredWise.Models.ViewModels
 {
     public class LoanProductViewModel
     {

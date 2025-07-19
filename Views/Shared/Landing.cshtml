@@ -12,13 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* New Color Palette:
-                           Primary (Main Brand): #001f4c (Dark Navy Blue)
-                           Accent (Icons, Highlights): #6bb9f0 (Sky Blue - Professional and calming)
-                           Secondary Text/Subheadings: #495057 (Dark Grey)
-                           Backgrounds: #f8f9fa (Light Grey) / #fff (White)
-                           Footer: #343a40 (Dark Grey)
-                        */
         :root {
             --primary-brand-color: #0A2463;
         }
@@ -35,18 +28,18 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa; /* Light grey background */
-            color: #495057; /* Dark grey text */
+            background-color: #f8f9fa;
+            color: #495057;
         }
 
         .navbar {
             box-shadow: 0 2px 4px rgba(0,0,0,.1);
-            background-color: #fff !important; /* White navbar */
+            background-color: #fff !important; 
         }
 
         .navbar-brand {
             font-weight: bold;
-            color: #001f4c !important; /* Dark Navy Blue */
+            color: #001f4c !important; 
         }
 
         .hero-section {
@@ -67,9 +60,8 @@
                 font-size: 1.25rem;
                 margin-bottom: 30px;
             }
-            /* The button in the hero section */
             .hero-section .btn-light {
-                color: #001f4c !important; /* Dark Navy Blue for the button text */
+                color: #001f4c !important; 
             }
 
 
@@ -77,7 +69,7 @@
             text-align: center;
             margin-bottom: 50px;
             font-weight: 600;
-            color: #001f4c; /* Dark Navy Blue */
+            color: #001f4c; 
         }
 
         .feature-card, .loan-product-card {
@@ -99,21 +91,20 @@
                 justify-content: space-between;
             }
 
-        /* Updated icon color for features and simple steps */
         .card-icon {
             font-size: 3rem;
-            color: #6bb9f0; /* Sky Blue accent */
+            color: #6bb9f0; 
             margin-bottom: 20px;
             text-align: center;
         }
 
         .card-title {
             font-weight: 600;
-            color: #001f4c; /* Dark Navy Blue */
+            color: #001f4c; 
         }
 
         .cta-section {
-            background-color: #001f4c; /* Dark Navy Blue */
+            background-color: #001f4c; 
             color: white;
             padding: 60px 0;
             text-align: center;
@@ -125,14 +116,14 @@
             }
 
         .footer {
-            background-color: #343a40; /* Darker grey for footer */
+            background-color: #343a40; 
             color: white;
             padding: 1rem 0;
             text-align: center;
         }
 
         .btn-custom-primary {
-            background-color: #001f4c; /* Dark Navy Blue */
+            background-color: #001f4c; 
             border-color: #001f4c;
             color: white;
             padding: 10px 20px;
@@ -140,12 +131,12 @@
         }
 
             .btn-custom-primary:hover {
-                background-color: #003366; /* Slightly lighter navy for hover */
+                background-color: #003366; 
                 border-color: #003366;
             }
 
         .btn-custom-secondary {
-            background-color: #6c757d; /* Bootstrap default secondary grey */
+            background-color: #6c757d; 
             border-color: #6c757d;
             color: white;
             padding: 10px 20px;
@@ -161,9 +152,8 @@
             margin-left: 10px;
         }
 
-        /* Navbar specific button styles (Login/Register) */
         .navbar .btn-outline-primary {
-            color: #001f4c; /* Dark Navy Blue */
+            color: #001f4c;
             border-color: #001f4c;
         }
 
@@ -173,7 +163,7 @@
             }
 
         .navbar .btn-primary {
-            background-color: #001f4c; /* Dark Navy Blue */
+            background-color: #001f4c; 
             border-color: #001f4c;
             color: white;
         }
@@ -183,18 +173,17 @@
                 border-color: #003366;
             }
 
-        /* Modal styling */
         .modal-header {
-            background-color: #f8f9fa; /* Light grey */
+            background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
 
         .modal-title {
-            color: #001f4c; /* Dark Navy Blue */
+            color: #001f4c;
         }
 
         .modal-footer button.btn-primary {
-            background-color: #001f4c; /* Dark Navy Blue */
+            background-color: #001f4c; 
             border-color: #001f4c;
             color: white;
         }
@@ -205,41 +194,40 @@
             }
 
         .navbar-brand .brand-highlight {
-            color: #3E92CC; /* A complementary lighter blue */
+            color: #3E92CC; 
         }
 
-        /* Dropdown specific styles */
         .dropdown-menu {
-            border-radius: 0.5rem; /* Match card border-radius */
-            box-shadow: 0 4px 15px rgba(0,0,0,.1); /* Match card shadow */
-            background-color: #fff; /* White background */
-            border: none; /* Remove default border */
-            padding: 0.5rem 0; /* Adjust padding */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+            background-color: #fff; 
+            border: none; 
+            padding: 0.5rem 0; 
         }
 
         .dropdown-item {
-            color: #001f4c; /* Dark Navy Blue for text */
-            padding: 0.75rem 1.5rem; /* Adjust padding for better clickable area */
-            font-weight: 500; /* Slightly bolder text */
+            color: #001f4c; 
+            padding: 0.75rem 1.5rem; 
+            font-weight: 500; 
         }
 
             .dropdown-item:hover,
             .dropdown-item:focus {
-                background-color: #e9ecef; /* Light grey on hover/focus */
-                color: #001f4c; /* Keep text color Dark Navy Blue */
+                background-color: #e9ecef; 
+                color: #001f4c; 
             }
 
             .dropdown-item.active {
-                background-color: #001f4c; /* Dark Navy Blue when active */
-                color: white; /* White text when active */
+                background-color: #001f4c; 
+                color: white;
             }
 
 
         .navbar .dropdown-toggle[aria-expanded="true"],
         .navbar .dropdown-toggle.show {
-            background-color: transparent !important; /* Force transparent background */
-            color: #001f4c !important; /* Force dark navy text */
-            border-color: #003366 !important; /* Force slightly darker navy border */
+            background-color: transparent !important;
+            color: #001f4c !important; 
+            border-color: #003366 !important; 
         }
     </style>
 </head>

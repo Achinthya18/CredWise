@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations; // For data annotations like [Required]
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CredWise_Trail.ViewModels
+namespace CredWise.ViewModels
 {
     public class CustomerUpdateViewModel
     {
-        // This is typically needed for updates to identify which record to update
         [Required]
         public int CustomerId { get; set; }
 
@@ -26,7 +25,5 @@ namespace CredWise_Trail.ViewModels
         [Required(ErrorMessage = "Address is required.")]
         [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters.")]
         public string Address { get; set; }
-
-        // We explicitly DO NOT include sensitive fields like PasswordHash, AccountNumber, CreatedDate here.
     }
 }

@@ -1,4 +1,4 @@
-namespace CredWise_Trail.Models
+namespace CredWise.Models
 {
     public class ErrorViewModel
     {

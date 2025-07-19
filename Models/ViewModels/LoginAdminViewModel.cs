@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CredWise_Trail.Models.ViewModels
+namespace CredWise.Models.ViewModels
 {
     public class LoginAdminViewModel
     {
@@ -9,7 +9,7 @@ namespace CredWise_Trail.Models.ViewModels
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [DataType(DataType.Password)] // Hides input in UI for security
+        [DataType(DataType.Password)]
         public string PasswordHash { get; set; }
     }
 }

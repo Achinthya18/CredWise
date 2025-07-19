@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CredWise_Trail.Models.ViewModels.CustomerViewModel>
+﻿@model IEnumerable<CredWise.Models.ViewModels.CustomerViewModel>
 
 @{
     Layout = "~/Views/Shared/AdminUtility.cshtml";
@@ -16,7 +16,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Color Palette Variables */
         :root {
             --primary-brand-color: #0A2463;
             --secondary-accent-color: #3E92CC;
@@ -36,19 +35,19 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
             font-weight: 600;
-            color: var(--primary-brand-color); /* Applied */
+            color: var(--primary-brand-color); 
             padding: 1rem 1.5rem;
         }
 
         .page-header h2, .page-header .h3 {
-            color: var(--primary-brand-color); /* Applied */
+            color: var(--primary-brand-color);
             font-weight: 700;
         }
 
         /* Table styles */
         .table thead th {
-            background-color: var(--primary-brand-color); /* Applied */
-            color: #ffffff; /* White text for contrast */
+            background-color: var(--primary-brand-color);
+            color: #ffffff;
             font-weight: 600;
             border-bottom-width: 1px;
             text-align: center;
@@ -65,49 +64,48 @@
             background-color: #eef2f7;
         }
 
-        /* Modal styling */
         .modal-header {
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
         }
 
         .modal-title {
-            color: var(--primary-brand-color); /* Applied */
+            color: var(--primary-brand-color);
             font-weight: 600;
         }
 
             .modal-title i {
-                color: var(--secondary-accent-color); /* Applied */
+                color: var(--secondary-accent-color);
                 margin-right: 0.5rem;
             }
 
         /* Custom Button Style */
         .btn-view-details {
             background-color: #ffffff;
-            border-color: var(--secondary-accent-color); /* Applied */
-            color: var(--secondary-accent-color); /* Applied */
+            border-color: var(--secondary-accent-color); 
+            color: var(--secondary-accent-color);
             transition: all 0.2s ease-in-out;
         }
 
             .btn-view-details:hover {
-                background-color: var(--primary-brand-color); /* Applied */
-                border-color: var(--primary-brand-color); /* Applied */
+                background-color: var(--primary-brand-color);
+                border-color: var(--primary-brand-color);
                 color: #ffffff;
             }
 
         /* Pagination Style */
         .pagination .page-item.active .page-link {
-            background-color: var(--primary-brand-color); /* Applied */
-            border-color: var(--primary-brand-color); /* Applied */
+            background-color: var(--primary-brand-color); 
+            border-color: var(--primary-brand-color);
             color:white;
         }
 
         .pagination .page-link {
-            color: var(--secondary-accent-color); /* Applied */
+            color: var(--secondary-accent-color);
         }
 
             .pagination .page-link:hover {
-                color: var(--primary-brand-color); /* Applied */
+                color: var(--primary-brand-color); 
             }
 
     </style>
@@ -188,7 +186,6 @@
             function displayTablePage() {
                 const query = $('#searchInput').val().toLowerCase();
 
-                // MODIFIED: Search logic to include customer ID and name
                 const filteredCustomers = allCustomers.filter(c => {
                     const customerIdString = c.customerId.toString();
                     const customerName = c.name.toLowerCase();
@@ -235,7 +232,6 @@
                 const paginationUl = $('#pagination .pagination');
                 paginationUl.empty();
 
-                // Add previous button
                 if(currentPage > 1) {
                     paginationUl.append('<li class="page-item"><a class="page-link" href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>');
                 }
@@ -246,23 +242,21 @@
                     paginationUl.append(pageLink);
                 }
 
-                // Add next button
                 if(currentPage < pageCount) {
                      paginationUl.append('<li class="page-item"><a class="page-link" href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>');
                 }
             }
 
-            // NEW: Function to get badge color based on status
             function getStatusBadge(status) {
-                let badgeClass = 'bg-secondary'; // Default
+                let badgeClass = 'bg-secondary'; 
                 if (status) {
                     const statusLower = status.toLowerCase();
                     if (statusLower === 'approved') {
-                        badgeClass = 'bg-success'; // Green
+                        badgeClass = 'bg-success'; 
                     } else if (statusLower === 'rejected') {
-                        badgeClass = 'bg-danger'; // Red
+                        badgeClass = 'bg-danger'; 
                     } else if (statusLower === 'pending') {
-                        badgeClass = 'bg-warning text-dark'; // Yellow
+                        badgeClass = 'bg-warning text-dark'; 
                     }
                 }
                 return `<span class="badge ${badgeClass}">${status}</span>`;

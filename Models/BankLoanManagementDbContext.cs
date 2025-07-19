@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace CredWise_Trail.Models
+namespace CredWise.Models
 {
     public class BankLoanManagementDbContext : DbContext
     {
@@ -20,10 +20,10 @@ namespace CredWise_Trail.Models
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<LoanApplication>()
-     .HasOne(la => la.LoanProduct)           // A LoanApplication has one LoanProduct
-     .WithMany(lp => lp.LoanApplications)                             // A LoanProduct can have many LoanApplications (no navigation collection needed on LoanProduct if not used)
-     .HasForeignKey(la => la.LoanProductId)  // The foreign key property in LoanApplication
-     .OnDelete(DeleteBehavior.SetNull);      // Set the foreign key to NULL on deletion of the principal (LoanProduct)
+     .HasOne(la => la.LoanProduct)         
+     .WithMany(lp => lp.LoanApplications)                            
+     .HasForeignKey(la => la.LoanProductId)  
+     .OnDelete(DeleteBehavior.SetNull);     
             modelBuilder.Entity<LoanApplication>(entity =>
             {
                 entity.ToTable(tb => tb.HasCheckConstraint("CK_LoanApplication_ApprovalStatus", "approvalStatus IN ('PENDING', 'APPROVED', 'REJECTED')"));
