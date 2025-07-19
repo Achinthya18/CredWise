@@ -186,55 +186,44 @@ namespace CredWise.Controllers
 
             return View(paginatedModel);
         }
+
         [HttpPost]
         public async Task<IActionResult> UpdateKycStatus(int kycId, string status)
         {
-            _logger.LogInformation($"Attempting to update KYC ID: {kycId} from frontend with status: '{status}'.");
+            var kycApproval = await _context.KycApprovals
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(k => k.KycID == kycId);
+
+            if (kycApproval == null)
+            {
+                return Json(new { success = false, message = "KYC record not found." });
+            }
+
+            string normalizedStatus = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status.ToLowerInvariant());
+
+            if (normalizedStatus != "Pending" && normalizedStatus != "Approved" && normalizedStatus != "Rejected")
+            {
+                return Json(new { success = false, message = "Invalid status provided." });
+            }
+
+            kycApproval.Status = normalizedStatus;
+
+            if (normalizedStatus == "Approved" || normalizedStatus == "Rejected")
+            {
+                kycApproval.ApprovalDate = DateTime.Now;
+            }
+            else
+            {
+                kycApproval.ApprovalDate = null;
+            }
+
             try
             {
-                var kycApproval = await _context.KycApprovals.FindAsync(kycId);
-
-                if (kycApproval == null)
-                {
-                    _logger.LogWarning($"KYC record with ID {kycId} not found for update.");
-                    return Json(new { success = false, message = "KYC record not found." });
-                }
-
-                // Normalize incoming status to prevent case-sensitivity issues. E.g., "approved" -> "Approved"
-                string normalizedStatus = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status.ToLowerInvariant());
-                _logger.LogInformation($"Normalized status for validation: '{normalizedStatus}'.");
-
-                if (normalizedStatus != "Pending" && normalizedStatus != "Approved" && normalizedStatus != "Rejected")
-                {
-                    _logger.LogWarning($"Invalid status '{status}' (normalized to '{normalizedStatus}') provided for KYC ID {kycId}.");
-                    return Json(new { success = false, message = "Invalid status provided." });
-                }
-
-                kycApproval.Status = normalizedStatus;
-
-                if (normalizedStatus == "Approved" || normalizedStatus == "Rejected")
-                {
-                    kycApproval.ApprovalDate = DateTime.Now;
-                }
-                else
-                {
-                    kycApproval.ApprovalDate = null;
-                }
+                _context.Update(kycApproval);
 
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Successfully updated KYC ID: {kycId} to status: {kycApproval.Status}.");
-
                 return Json(new { success = true });
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogError(ex, $"Concurrency error updating KYC ID {kycId}.");
-                return Json(new { success = false, message = "Concurrency conflict. Data was modified by another user." });
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, $"Database update error for KYC ID {kycId}. Details: {ex.InnerException?.Message ?? ex.Message}");
-                return Json(new { success = false, message = "Database error updating status. Please try again." });
             }
             catch (Exception ex)
             {
@@ -318,7 +307,9 @@ namespace CredWise.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateLoanStatus(int loanId, string status)
         {
-            var loanApplication = await _context.LoanApplications.FindAsync(loanId);
+            var loanApplication = await _context.LoanApplications
+                                                .AsNoTracking()
+                                                .FirstOrDefaultAsync(la => la.ApplicationId == loanId);
 
             if (loanApplication == null)
             {
@@ -347,7 +338,6 @@ namespace CredWise.Controllers
                 var approvalDate = loanApplication.ApprovalDate ?? DateTime.Now;
                 loanApplication.NextDueDate = new DateTime(approvalDate.Year, approvalDate.Month, approvalDate.Day).AddMonths(1);
 
-                // --- Generate Repayment Schedule upon Approval ---
                 var existingRepayments = _context.Repayments.Where(r => r.ApplicationId == loanApplication.ApplicationId);
                 _context.Repayments.RemoveRange(existingRepayments);
 
@@ -375,7 +365,6 @@ namespace CredWise.Controllers
                     }
                     else
                     {
-                        // The last EMI clears the remaining balance plus its final interest.
                         principalComponent = currentBalanceForSchedule;
                         actualEmiForThisMonth = principalComponent + interestComponent;
                     }
@@ -421,7 +410,7 @@ namespace CredWise.Controllers
                 loanApplication.TenureMonths = 0;
                 loanApplication.InterestRate = 0;
             }
-            else // "Pending"
+            else
             {
                 loanApplication.ApprovalDate = null;
                 loanApplication.LoanStatus = "Pending";
@@ -433,6 +422,7 @@ namespace CredWise.Controllers
 
             try
             {
+                _context.Update(loanApplication);
                 await _context.SaveChangesAsync();
                 return Json(new { success = true, newStatus = loanApplication.ApprovalStatus, loanId = loanApplication.ApplicationId, message = $"Loan status updated to {status}." });
             }
